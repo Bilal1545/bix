@@ -1,11 +1,11 @@
-# Six
+# bix
 
 > **Stop managing packages. Start managing systems.**  
-> If you’re using Nix just to keep your sanity, six exists to give it back to you.
+> If you’re using Nix just to keep your sanity, bix exists to give it back to you.
 
-six is a **cross–distribution, declarative package synchronizer** that does one thing extremely well:
+bix is a **cross–distribution, declarative package synchronizer** that does one thing extremely well:
 
-**You describe what should exist. six makes it exist. Everywhere.**
+**You describe what should exist. bix makes it exist. Everywhere.**
 
 No daemon.  
 No rebuilds.  
@@ -16,7 +16,7 @@ Just a file. And reality aligning itself to that file.
 
 ---
 
-## Why six exists (and why you’re still reading)
+## Why bix exists (and why you’re still reading)
 
 Nix is powerful.  
 Nix is also a lifestyle choice.
@@ -33,11 +33,11 @@ They just want this sentence to be true:
 
 That’s it. That’s the whole dream.
 
-six delivers **that exact promise**, without replacing your distro, your package manager, or your soul.
+bix delivers **that exact promise**, without replacing your distro, your package manager, or your soul.
 
 ---
 
-## What six does
+## What bix does
 
 - Works on **Arch, Debian/Ubuntu, Fedora, Alpine** (and friends)
 - Automatically detects:
@@ -55,12 +55,12 @@ six delivers **that exact promise**, without replacing your distro, your package
 - Zero background processes
 - Zero lock-in
 
-six is not a replacement.  
-six is a conductor.
+bix is not a replacement.  
+bix is a conductor.
 
 ---
 
-## What six is NOT
+## What bix is NOT
 
 - Not a package manager
 - Not a build system
@@ -99,20 +99,20 @@ That’s not an accident.
 ## Usage
 
 ```bash
-six add htop
-six sync
+bix add htop
+bix sync
 ```
 
 Update when *you* decide:
 
 ```bash
-six sync -u
+bix sync -u
 ```
 
 Move the config to another machine:
 
 ```bash
-six sync
+bix sync
 ```
 
 Same system.
@@ -128,7 +128,7 @@ Because sometimes you want:
 * declarative state
 * without rebuilding the universe
 
-six respects:
+bix respects:
 
 * your distro
 * your tooling
@@ -145,16 +145,14 @@ It integrates instead of replacing.
 * Portable over pure
 * Boring over clever
 
-six chooses **leverage over ideology**.
+bix chooses **leverage over ideology**.
 
 ---
 
 ## Installation
 
 ```bash
-curl -fsSL https://github.com/Bilal1545/six/six.sh -o six
-chmod +x six
-sudo mv six /usr/local/bin/
+curl -fsSL https://raw.githubusercontent.com/Bilal1545/bix/main/install.sh -o /tmp/install.sh && bash /tmp/install.sh && rm -f /tmp/install.sh 
 ```
 
 That’s the install.
@@ -178,6 +176,6 @@ If you’ve ever thought:
 
 > “I love the idea, but why does this feel like I joined a monastery?”
 
-Then six was written for you.
+Then bix was written for you.
 
 Welcome back to your system.
