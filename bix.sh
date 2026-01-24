@@ -304,11 +304,11 @@ list_packages() {
 # --- Help ---
 show_help() {
     cat <<EOF
-Usage: $0 <command>
+Usage: bix <command>
 
 Commands:
   list           List packages
-  diff
+  diff           Show what if you execute sync -u
   add <package>  Add repository package
   sync [-u]      Install missing packages, update with -u
   help           Show this help
