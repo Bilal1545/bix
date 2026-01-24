@@ -1,195 +1,183 @@
-<style>@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght,XOPQ,XTRA,YOPQ,YTDE,YTFI,YTLC,YTUC@8..144,100..1000,96,468,79,-203,738,514,712&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+# Six
 
-:root {
-    --bi-ref-typeface-brand: 'Roboto Flex', sans-serif;
-    --bi-ref-typeface-plain: system-ui, -apple-system, sans-serif;
-    --bi-sys-typescale-display-large-size: clamp(2.5rem, 7vw + 1rem, 3.5625rem);
-    --bi-sys-typescale-display-medium-size: clamp(2.25rem, 5vw + 1rem, 2.8125rem);
-    --bi-sys-typescale-display-small-size: clamp(2rem, 4vw + 1rem, 2.25rem);
-    --bi-sys-typescale-headline-large-size: clamp(1.75rem, 3vw + 1rem, 2rem);
-    --bi-sys-typescale-headline-medium-size: clamp(1.5rem, 2vw + 1rem, 1.75rem);
-    --bi-sys-typescale-headline-small-size: clamp(1.25rem, 1.5vw + 1rem, 1.5rem);
-    --bi-sys-typescale-title-large-size: clamp(1.25rem, 0.5vw + 1rem, 1.375rem);
-    --bi-sys-typescale-title-medium-size: 1rem;
-    --bi-sys-typescale-title-small-size: 0.875rem;
-    --bi-sys-typescale-body-large-size: 1rem;
-    --bi-sys-typescale-body-medium-size: 0.875rem;
-    --bi-sys-typescale-body-small-size: 0.75rem;
-    --bi-sys-typescale-label-large-size: 0.875rem;
-    --bi-sys-typescale-label-medium-size: 0.75rem;
-    --bi-sys-typescale-label-small-size: 0.6875rem;
+> **Stop managing packages. Start managing systems.**  
+> If you’re using Nix just to keep your sanity, six exists to give it back to you.
 
-    --bi-sys-typescale-display-large-line-height: 1.12;
-    --bi-sys-typescale-display-medium-line-height: 1.15;
-    --bi-sys-typescale-display-small-line-height: 1.22;
-    --bi-sys-typescale-headline-large-line-height: 1.25;
-    --bi-sys-typescale-headline-medium-line-height: 1.28;
-    --bi-sys-typescale-headline-small-line-height: 1.33;
-    --bi-sys-typescale-title-large-line-height: 1.27;
-    --bi-sys-typescale-title-medium-line-height: 1.5;
-    --bi-sys-typescale-title-small-sizline-heighte: 1.42;
-    --bi-sys-typescale-body-large-line-height: 1.5;
-    --bi-sys-typescale-body-medium-line-height: 1.42;
-    --bi-sys-typescale-body-small-line-height: 1.33;
-    --bi-sys-typescale-label-large-line-height: 1.42;
-    --bi-sys-typescale-label-medium-line-height: 1.33;
-    --bi-sys-typescale-label-small-line-height: 1.45;
+six is a **cross–distribution, declarative package synchronizer** that does one thing extremely well:
 
-    --bi-sys-typescale-display-large-letter-spacing: -0.01em;
-    --bi-sys-typescale-display-medium-letter-spacing: 0;
-    --bi-sys-typescale-display-small-letter-spacing: 0;
-    --bi-sys-typescale-headline-large-letter-spacing: 0;
-    --bi-sys-typescale-headline-medium-letter-spacing: 0;
-    --bi-sys-typescale-headline-small-letter-spacing: 0;
-    --bi-sys-typescale-title-large-letter-spacing: 0.01em;
-    --bi-sys-typescale-title-medium-letter-spacing: 0.01em;
-    --bi-sys-typescale-title-small-letter-spacing: 0.01em;
-    --bi-sys-typescale-body-large-letter-spacing: 0.03em;
-    --bi-sys-typescale-body-medium-letter-spacing: 0.02em;
-    --bi-sys-typescale-body-small-letter-spacing: 0.03em;
-    --bi-sys-typescale-label-large-letter-spacing: 0.01em;
-    --bi-sys-typescale-label-medium-letter-spacing: 0.04em;
-    --bi-sys-typescale-label-small-letter-spacing: 0.04em;
+**You describe what should exist. six makes it exist. Everywhere.**
 
-    --bi-sys-typescale-display-large-weight: 400;
-    --bi-sys-typescale-display-medium-weight: 400;
-    --bi-sys-typescale-display-small-weight: 400;
-    --bi-sys-typescale-headline-large-weight: 400;
-    --bi-sys-typescale-headline-medium-weight: 400;
-    --bi-sys-typescale-headline-small-weight: 400;
-    --bi-sys-typescale-title-large-weight: 400;
-    --bi-sys-typescale-title-medium-weight: 500;
-    --bi-sys-typescale-title-small-weight: 500;
-    --bi-sys-typescale-body-large-weight: 400;
-    --bi-sys-typescale-body-medium-weight: 400;
-    --bi-sys-typescale-body-small-weight: 400;
-    --bi-sys-typescale-label-large-weight: 500;
-    --bi-sys-typescale-label-medium-weight: 500;
-    --bi-sys-typescale-label-small-weight: 500;
+No daemon.  
+No rebuilds.  
+No language you have to “learn”.  
+No ideological commitment.
+
+Just a file. And reality aligning itself to that file.
+
+---
+
+## Why six exists (and why you’re still reading)
+
+Nix is powerful.  
+Nix is also a lifestyle choice.
+
+Most people don’t want:
+- a new language
+- a new store
+- a new filesystem philosophy
+- a new way of thinking about time
+
+They just want this sentence to be true:
+
+> “If I move this config to another machine, my system should look the same.”
+
+That’s it. That’s the whole dream.
+
+six delivers **that exact promise**, without replacing your distro, your package manager, or your soul.
+
+---
+
+## What six does
+
+- Works on **Arch, Debian/Ubuntu, Fedora, Alpine** (and friends)
+- Automatically detects:
+  - pacman / yay (AUR)
+  - apt
+  - dnf
+  - apk
+- Uses **your native package manager**
+- Supports:
+  - repo packages
+  - GitHub releases
+  - direct URLs
+- Single command sync
+- Optional updates
+- Zero background processes
+- Zero lock-in
+
+six is not a replacement.  
+six is a conductor.
+
+---
+
+## What six is NOT
+
+- Not a package manager
+- Not a build system
+- Not a container
+- Not a VM
+- Not a framework
+- Not a religion
+
+If you need any of those, Nix is still there. Calm down.
+
+---
+
+## The config (this is the entire learning curve)
+
+```kdl
+pm {
+    aur = true
 }
 
-/* Global Font Settings */
-* {
-    font-family: var(--bi-ref-typeface-brand);
-    -webkit-font-smoothing: antialiased;
+package "htop" {}
+
+package "ripgrep" {}
+
+package "starship" {
+    source = "github"
+    repo   = "starship/starship"
+    asset  = "starship-x86_64-unknown-linux-gnu.tar.gz"
 }
+```
 
-/* --- DISPLAY --- */
-.bi-typescale-display.large {
-    font-size: var(--bi-sys-typescale-display-large-size);
-    line-height: var(--bi-sys-typescale-display-large-line-height);
-    letter-spacing: var(--bi-sys-typescale-display-large-letter-spacing);
-    font-weight: var(--bi-sys-typescale-display-large-weight);
-}
+You already understand it.
+That’s not an accident.
 
-.bi-typescale-display,
-.bi-typescale-display.medium {
-    font-size: var(--bi-sys-typescale-display-medium-size);
-    line-height: var(--bi-sys-typescale-display-medium-line-height);
-    letter-spacing: var(--bi-sys-typescale-display-medium-letter-spacing);
-    font-weight: var(--bi-sys-typescale-display-medium-weight);
-}
+---
 
-.bi-typescale-display.small {
-    font-size: var(--bi-sys-typescale-display-small-size);
-    line-height: var(--bi-sys-typescale-display-small-line-height);
-    letter-spacing: var(--bi-sys-typescale-display-small-letter-spacing);
-    font-weight: var(--bi-sys-typescale-display-small-weight);
-}
+## Usage
 
-/* --- HEADLINE --- */
-.bi-typescale-headline.large {
-    font-size: var(--bi-sys-typescale-headline-large-size);
-    line-height: var(--bi-sys-typescale-headline-large-line-height);
-    letter-spacing: var(--bi-sys-typescale-headline-large-letter-spacing);
-    font-weight: var(--bi-sys-typescale-headline-large-weight);
-}
+```bash
+six add htop
+six sync
+```
 
-.bi-typescale-headline,
-.bi-typescale-headline.medium {
-    font-size: var(--bi-sys-typescale-headline-medium-size);
-    line-height: var(--bi-sys-typescale-headline-medium-line-height);
-    letter-spacing: var(--bi-sys-typescale-headline-medium-letter-spacing);
-    font-weight: var(--bi-sys-typescale-headline-medium-weight);
-}
+Update when *you* decide:
 
-.bi-typescale-headline.small {
-    font-size: var(--bi-sys-typescale-headline-small-size);
-    line-height: var(--bi-sys-typescale-headline-small-line-height);
-    letter-spacing: var(--bi-sys-typescale-headline-small-letter-spacing);
-    font-weight: var(--bi-sys-typescale-headline-small-weight);
-}
+```bash
+six sync -u
+```
 
-/* --- TITLE --- */
-.bi-typescale-title.large {
-    font-size: var(--bi-sys-typescale-title-large-size);
-    line-height: var(--bi-sys-typescale-title-large-line-height);
-    letter-spacing: var(--bi-sys-typescale-title-large-letter-spacing);
-    font-weight: var(--bi-sys-typescale-title-large-weight);
-}
+Move the config to another machine:
 
-.bi-typescale-title,
-.bi-typescale-title.medium {
-    font-size: var(--bi-sys-typescale-title-medium-size);
-    line-height: var(--bi-sys-typescale-title-medium-line-height);
-    letter-spacing: var(--bi-sys-typescale-title-medium-letter-spacing);
-    font-weight: var(--bi-sys-typescale-title-medium-weight);
-}
+```bash
+six sync
+```
 
-.bi-typescale-title.small {
-    font-size: var(--bi-sys-typescale-title-small-size);
-    line-height: var(--bi-sys-typescale-title-small-line-height);
-    letter-spacing: var(--bi-sys-typescale-title-small-letter-spacing);
-    font-weight: var(--bi-sys-typescale-title-small-weight);
-}
+Same system.
+Different computer.
+No rituals required.
 
-/* --- BODY --- */
-.bi-typescale-body,
-.bi-typescale-body.large {
-    font-size: var(--bi-sys-typescale-body-large-size);
-    line-height: var(--bi-sys-typescale-body-large-line-height);
-    letter-spacing: var(--bi-sys-typescale-body-large-letter-spacing);
-    font-weight: var(--bi-sys-typescale-body-large-weight);
-}
+---
 
-.bi-typescale-body.medium {
-    font-size: var(--bi-sys-typescale-body-medium-size);
-    line-height: var(--bi-sys-typescale-body-medium-line-height);
-    letter-spacing: var(--bi-sys-typescale-body-medium-letter-spacing);
-    font-weight: var(--bi-sys-typescale-body-medium-weight);
-}
+## Why not just use Nix?
 
-.bi-typescale-body.small {
-    font-size: var(--bi-sys-typescale-body-small-size);
-    line-height: var(--bi-sys-typescale-body-small-line-height);
-    letter-spacing: var(--bi-sys-typescale-body-small-letter-spacing);
-    font-weight: var(--bi-sys-typescale-body-small-weight);
-}
+Because sometimes you want:
 
-/* --- LABEL --- */
-.bi-typescale-label,
-.bi-typescale-label.large {
-    font-size: var(--bi-sys-typescale-label-large-size);
-    line-height: var(--bi-sys-typescale-label-large-line-height);
-    letter-spacing: var(--bi-sys-typescale-label-large-letter-spacing);
-    font-weight: var(--bi-sys-typescale-label-large-weight);
-}
+* declarative state
+* without rebuilding the universe
 
-.bi-typescale-label.medium {
-    font-size: var(--bi-sys-typescale-label-medium-size);
-    line-height: var(--bi-sys-typescale-label-medium-line-height);
-    letter-spacing: var(--bi-sys-typescale-label-medium-letter-spacing);
-    font-weight: var(--bi-sys-typescale-label-medium-weight);
-}
+six respects:
 
-.bi-typescale-label.small {
-    font-size: var(--bi-sys-typescale-label-small-size);
-    line-height: var(--bi-sys-typescale-label-small-line-height);
-    letter-spacing: var(--bi-sys-typescale-label-small-letter-spacing);
-    font-weight: var(--bi-sys-typescale-label-small-weight);
-}</style>
+* your distro
+* your tooling
+* your existing mental model
 
-<h1 class="bi-typescale-display">Six</h1>
-Six is a cross-distro, declarative package sync tool inspired by Nix, without replacing your system package manager.
+It integrates instead of replacing.
 
-License: Apache-2.0
+---
+
+## Philosophy (short version)
+
+* Declarative where it matters
+* Imperative where it’s practical
+* Portable over pure
+* Boring over clever
+
+six chooses **leverage over ideology**.
+
+---
+
+## Installation
+
+```bash
+curl -fsSL https://github.com/Bilal1545/six/six.sh -o six
+chmod +x six
+sudo mv six /usr/local/bin/
+```
+
+That’s the install.
+Yes, really.
+
+---
+
+## License
+
+Apache 2.0
+Take it. Fork it. Ship it.
+Just don’t pretend you wrote it.
+
+---
+
+## Final note
+
+If you’re happy with Nix, keep using it.
+
+If you’ve ever thought:
+
+> “I love the idea, but why does this feel like I joined a monastery?”
+
+Then six was written for you.
+
+Welcome back to your system.
