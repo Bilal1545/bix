@@ -34,16 +34,18 @@ shift || true
 SYSTEM_CONFIG="/etc/bix/packages.bix"
 USER_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/bix/packages.bix"
 
-if [[ -n "$BIX_CONFIG" ]]; then
-    CONFIG="$BIX_CONFIG"
-elif [[ -f "$SYSTEM_CONFIG" ]]; then
-    CONFIG="$SYSTEM_CONFIG"
-else
-    echo "No bix config found."
-    echo "Looked for:"
-    echo "  $SYSTEM_CONFIG"
-    exit 1
-fi
+conf_control () {
+    if [[ -n "$BIX_CONFIG" ]]; then
+        CONFIG="$BIX_CONFIG"
+    elif [[ -f "$SYSTEM_CONFIG" ]]; then
+        CONFIG="$SYSTEM_CONFIG"
+    else
+        echo "No bix config found."
+        echo "Looked for:"
+        echo "  $SYSTEM_CONFIG"
+        exit 1
+    fi
+}
 
 BACKUP="$CONFIG.bak"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/bix"
@@ -174,6 +176,7 @@ package_exists() {
 
 # --- Add package ---
 add_package() {
+    conf_control
     doas_control
     local pkg="$1"
 
@@ -237,6 +240,7 @@ run_hooks() {
 
 # --- Sync ---
 sync_packages() {
+    conf_control
     doas_control
     local do_update="$DO_UPDATE"
 
@@ -307,6 +311,7 @@ sync_packages() {
 
 # --- Diff ---
 diff() {
+    conf_control
     # Removed packages
     if [[ -f "$BACKUP" ]]; then
         old_pkgs=$(get_packages_from_config "$BACKUP")
