@@ -1,10 +1,57 @@
 #!/usr/bin/env bash
 
-CONFIG="$HOME/.bix-packages.bix"
-BACKUP="$CONFIG.bak"
-TMPDIR="/tmp/bix"
+# --- CLI argument parsing (GNU getopt) ---
+PARSED=$(getopt -o uc: -l update,config: -- "$@")
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 
-mkdir -p "$TMPDIR"
+eval set -- "$PARSED"
+
+DO_UPDATE=0
+BIX_CONFIG=""
+
+while true; do
+    case "$1" in
+        -u|--update)
+            DO_UPDATE=1
+            shift
+            ;;
+        -c|--config)
+            BIX_CONFIG="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+CMD="$1"
+shift || true
+
+SYSTEM_CONFIG="/etc/bix/packages.bix"
+USER_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/bix/packages.bix"
+
+if [[ -n "$BIX_CONFIG" ]]; then
+    CONFIG="$BIX_CONFIG"
+elif [[ -f "$SYSTEM_CONFIG" ]]; then
+    CONFIG="$SYSTEM_CONFIG"
+else
+    echo "No bix config found."
+    echo "Looked for:"
+    echo "  $SYSTEM_CONFIG"
+    exit 1
+fi
+
+BACKUP="$CONFIG.bak"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/bix"
+mkdir -p "$CACHE_DIR"
+
+is_system_config() {
+    [[ "$CONFIG" == /etc/bix/* ]]
+}
 
 # --- Privilege escalation detection ---
 doas_control() {
@@ -130,9 +177,16 @@ add_package() {
     doas_control
     local pkg="$1"
 
+    if is_system_config; then
+        echo "Refusing to modify system config without explicit intent."
+        echo "Use: sudo bix add $pkg"
+        exit 1
+    fi
+
     if package_exists "$pkg"; then
         echo "Package already exists: $pkg"
     else
+        mkdir -p "$(dirname "$CONFIG")"
         echo -e "\npackage \"$pkg\" {}" >> "$CONFIG"
         echo "Package added: $pkg"
     fi
@@ -172,16 +226,19 @@ run_hooks() {
     export bix_ARGS="$*"
 
     while IFS= read -r cmd; do
-        echo "→ hook $hook (${pkg:-global}): $cmd"
-        bash -c "$cmd"
+        echo "running: $hook (${pkg:-global}): $cmd"
+        if is_system_config; then
+            $priv bash -c "$cmd"
+        else
+            bash -c "$cmd"
+        fi
     done <<< "$cmds"
 }
 
 # --- Sync ---
 sync_packages() {
     doas_control
-    local do_update=0
-    [[ "$1" == "-u" ]] && do_update=1
+    local do_update="$DO_UPDATE"
 
     # Removed packages
     if [[ -f "$BACKUP" ]]; then
@@ -227,12 +284,12 @@ sync_packages() {
                     fi
                 elif [[ "$source" == "github" ]]; then
                     echo "Will install (github): $pkg"
-                    dl="$TMPDIR/$asset"
+                    dl="$CACHE_DIR/$asset"
                     curl -L "https://github.com/$repo/releases/latest/download/$asset" -o "$dl"
                     pm_apply "$dl"
                 elif [[ "$source" == "url" ]]; then
                     echo "Will install (url): $pkg"
-                    dl="$TMPDIR/$(basename "$url")"
+                    dl="$CACHE_DIR/$(basename "$url")"
                     curl -L "$url" -o "$dl"
                     pm_apply "$dl"
                 fi
@@ -301,28 +358,86 @@ list_packages() {
     grep -E 'package "' "$CONFIG" | sed -E 's/.*package "([^"]+)".*/\1/'
 }
 
+
+init_config() {
+    doas_control
+
+    if [[ -f "$SYSTEM_CONFIG" ]]; then
+        echo "System config already exists:"
+        echo "  $SYSTEM_CONFIG"
+        exit 0
+    fi
+
+    echo "Initializing bix system config at:"
+    echo "  $SYSTEM_CONFIG"
+
+    $priv mkdir -p /etc/bix
+
+    $priv tee "$SYSTEM_CONFIG" >/dev/null <<'EOF'
+# bix system configuration
+# created with bix init
+
+pm {
+    # if you are not using arch, you can delete this
+    # aur = true
+}
+
+# Example:
+# package "htop" {}
+# package "git" {
+#     pre-install  "echo installing git"
+#     post-install "git --version"
+# }
+EOF
+
+    $priv chmod 644 "$SYSTEM_CONFIG"
+
+    echo "bix system config created."
+}
+
 # --- Help ---
 show_help() {
     cat <<EOF
-Usage: bix <command>
+Usage: bix [options] <command>
+
+Options:
+  -u, --update           Update packages during sync
+  -c, --config <path>    Use alternate config file
 
 Commands:
   list           List packages
+  init           Create config file
   diff           Show what if you execute sync -u
   add <package>  Add repository package
-  sync [-u]      Install missing packages, update with -u
+  sync           Install missing packages
   help           Show this help
 EOF
 }
 
 # --- CLI ---
-case $1 in
-    list) list_packages ;;
-    diff) diff ;;
-    add)
-        [[ -z "$2" ]] && { echo "Package name required."; exit 1; }
-        add_package "$2"
+case "$CMD" in
+    list)
+        list_packages
         ;;
-    sync) sync_packages "$2" ;;
-    help|*) show_help ;;
+    init)
+        init_config
+        ;;
+    diff)
+        diff
+        ;;
+    add)
+        [[ -z "$1" ]] && { echo "Package name required."; exit 1; }
+        add_package "$1"
+        ;;
+    sync)
+        sync_packages
+        ;;
+    help|"")
+        show_help
+        ;;
+    *)
+        echo "Unknown command: $CMD"
+        show_help
+        exit 1
+        ;;
 esac
