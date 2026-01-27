@@ -167,7 +167,7 @@ get_latest_version() {
 
 # --- Config helpers ---
 get_packages_from_config() {
-    grep -E 'package "' "$1" | sed -E 's/.*package "([^"]+)".*/\1/'
+    grep -E '^\s*package "' "$1" | grep -v '^\s*#' | sed -E 's/.*package "([^"]+)".*/\1/'
 }
 
 package_exists() {
@@ -267,7 +267,10 @@ sync_packages() {
     local pkg="" source="" repo="" asset="" url=""
 
     while read -r line; do
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
         [[ $line =~ package\ \"([^\"]+)\" ]] && pkg="${BASH_REMATCH[1]}"
+        [[ $line =~ version\ *=\ *\"([^\"]+)\" ]] && version="${BASH_REMATCH[1]}"
         [[ $line =~ source\ *=\ *\"([^\"]+)\" ]] && source="${BASH_REMATCH[1]}"
         [[ $line =~ repo\ *=\ *\"([^\"]+)\" ]] && repo="${BASH_REMATCH[1]}"
         [[ $line =~ asset\ *=\ *\"([^\"]+)\" ]] && asset="${BASH_REMATCH[1]}"
@@ -329,7 +332,10 @@ diff() {
     local pkg="" source="" repo="" asset="" url=""
 
     while read -r line; do
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
         [[ $line =~ package\ \"([^\"]+)\" ]] && pkg="${BASH_REMATCH[1]}"
+        [[ $line =~ version\ *=\ *\"([^\"]+)\" ]] && version="${BASH_REMATCH[1]}"
         [[ $line =~ source\ *=\ *\"([^\"]+)\" ]] && source="${BASH_REMATCH[1]}"
         [[ $line =~ repo\ *=\ *\"([^\"]+)\" ]] && repo="${BASH_REMATCH[1]}"
         [[ $line =~ asset\ *=\ *\"([^\"]+)\" ]] && asset="${BASH_REMATCH[1]}"
@@ -360,6 +366,7 @@ diff() {
 
 # --- List ---
 list_packages() {
+    conf_control
     grep -E 'package "' "$CONFIG" | sed -E 's/.*package "([^"]+)".*/\1/'
 }
 
