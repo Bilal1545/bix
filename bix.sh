@@ -11,6 +11,12 @@ eval set -- "$PARSED"
 DO_UPDATE=0
 BIX_CONFIG=""
 
+detect_aur_helper() {
+    for h in yay paru trizen aura pikaur; do
+        command -v "$h" &>/dev/null && { AUR_HELPER="$h" }
+    done
+}
+
 while true; do
     case "$1" in
         -u|--update)
@@ -80,8 +86,8 @@ pm_install() {
     for pkg in "${pkgs[@]}"; do
         run_hooks pre-install "$pkg"
     done
-    if command -v yay &>/dev/null && pm_aur_enabled; then
-        yay -S --noconfirm "$@"
+    if command -v pacman &>/dev/null && pm_aur_enabled; then
+        $AUR_HELPER -S --noconfirm "$@"
     elif command -v pacman &>/dev/null; then
         $priv pacman -S --noconfirm "$@"
     elif command -v apt &>/dev/null; then
@@ -101,8 +107,8 @@ pm_remove() {
     for pkg in "${pkgs[@]}"; do
         run_hooks pre-remove "$pkg"
     done
-    if command -v yay &>/dev/null && pm_aur_enabled; then
-        yay -R --noconfirm "$@"
+    if command -v pacman &>/dev/null && pm_aur_enabled; then
+        $AUR_HELPER -R --noconfirm "$@"
     elif command -v pacman &>/dev/null; then
         $priv pacman -R --noconfirm "$@"
     elif command -v apt &>/dev/null; then
@@ -138,8 +144,8 @@ pm_apply() {
 
 # --- Version detection ---
 get_installed_version() {
-    if command -v yay &>/dev/null && pm_aur_enabled; then
-        LANG=C yay -Qi "$1" 2>/dev/null | awk -F': ' '/^Version/{print $2}'
+    if command -v pacman &>/dev/null && pm_aur_enabled; then
+        LANG=C $AUR_HELPER -Qi "$1" 2>/dev/null | awk -F': ' '/^Version/{print $2}'
     elif command -v pacman &>/dev/null; then
         LANG=C pacman -Qi "$1" 2>/dev/null | awk -F': ' '/^Version/{print $2}'
     elif command -v apt &>/dev/null; then
@@ -152,8 +158,8 @@ get_installed_version() {
 }
 
 get_latest_version() {
-    if command -v yay &>/dev/null && pm_aur_enabled; then
-        LANG=C yay -Si "$1" 2>/dev/null | awk -F': ' '/^Version/{print $2}'
+    if command -v pacman &>/dev/null && pm_aur_enabled; then
+        LANG=C $AUR_HELPER -Si "$1" 2>/dev/null | awk -F': ' '/^Version/{print $2}'
     elif command -v pacman &>/dev/null; then
         LANG=C pacman -Si "$1" 2>/dev/null | awk -F': ' '/^Version/{print $2}'
     elif command -v apt &>/dev/null; then
@@ -238,6 +244,49 @@ run_hooks() {
     done <<< "$cmds"
 }
 
+btow_sync() {
+    # Eğer btow yoksa, sorarak kur
+    if ! command -v btow &>/dev/null; then
+        read -rp "btow komutu bulunamadı. Kurmak ister misiniz? [Y/n]: " ans
+        if [[ "$ans" =~ ^[Yy]?$ ]]; then
+            echo "Installing btow..."
+            curl -fsSL https://raw.githubusercontent.com/Bilal1545/btow/main/install.sh | bash
+        else
+            echo "Skipping btow integration."
+            return 0
+        fi
+    fi
+
+    local loaded_name=""
+    local pkg_url=""
+    
+    # btow block parser
+    awk '
+        /^\s*btow\s*\{/ { in_btow=1; next }
+        in_btow && /loaded\s*:/ { match($0, /loaded:\s*"([^"]+)"/, a); print "LOADED:" a[1] }
+        in_btow && /package\s*"([^"]+)"/ { pkg=$2 }
+        in_btow && /url\s*:/ { match($0, /url:\s*"([^"]+)"/, a); print "PACKAGE:" pkg ":" a[1] }
+        in_btow && /^\s*\}/ { exit }
+    ' "$CONFIG" | while IFS= read -r line; do
+        if [[ $line == LOADED:* ]]; then
+            loaded_name="${line#LOADED:}"
+        elif [[ $line == PACKAGE:* ]]; then
+            IFS=':' read -r pkgname pkg_url <<< "${line#PACKAGE:}"
+            dl="$CACHE_DIR/$pkgname.btow"
+            echo "Downloading btow package '$pkgname' from $pkg_url ..."
+            curl -L "$pkg_url" -o "$dl"
+            btow import "$dl"
+            btow load "$loaded_name"
+        fi
+    done
+
+    # load profile eğer set edilmişse
+    if [[ -n "$loaded_name" ]]; then
+        echo "Loading btow profile '$loaded_name' ..."
+        btow load "$loaded_name"
+    fi
+}
+
 # --- Sync ---
 sync_packages() {
     conf_control
@@ -310,6 +359,7 @@ sync_packages() {
         echo ""
         pm_install "${repo_install[@]}"
     fi
+    btow_sync
 }
 
 # --- Diff ---
@@ -362,6 +412,72 @@ diff() {
             pkg=""; source=""; repo=""; asset=""; url=""
         fi
     done < "$CONFIG"
+}
+
+capture() {
+    echo "# bix package config"
+    echo "# generated: $(date -Is)"
+    echo
+
+    # ---- pacman & forks ----
+    if command -v pacman >/dev/null 2>&1; then
+        echo "packages {"
+        pacman -Qqe | sed 's/^/    /'
+        echo "}"
+
+        if [ "${pm_aur_enabled:-false}" = "true" ]; then
+            local aur_pkgs=""
+            if [ -n "${AUR_HELPER:-}" ] && command -v "$AUR_HELPER" >/dev/null 2>&1; then
+                aur_pkgs=$("$AUR_HELPER" -Qqm 2>/dev/null)
+            else
+                aur_pkgs=$(pacman -Qqm)
+            fi
+
+            if [ -n "$aur_pkgs" ]; then
+                echo
+                echo "aur {"
+                echo "$aur_pkgs" | sed 's/^/    /'
+                echo "}"
+            fi
+        fi
+        return 0
+    fi
+
+    # ---- apt & forks ----
+    if command -v apt >/dev/null 2>&1; then
+        echo 'pm "apt"'
+        echo
+
+        echo "packages {"
+        apt-mark showmanual | sed 's/^/    /'
+        echo "}"
+        return 0
+    fi
+
+    # ---- dnf & forks ----
+    if command -v dnf >/dev/null 2>&1; then
+        echo 'pm "dnf"'
+        echo
+
+        echo "packages {"
+        dnf repoquery --userinstalled --qf '%{name}' 2>/dev/null | sed 's/^/    /'
+        echo "}"
+        return 0
+    fi
+
+    # ---- apk ----
+    if command -v apk >/dev/null 2>&1; then
+        echo 'pm "apk"'
+        echo
+
+        echo "packages {"
+        apk info --installed | sed 's/^/    /'
+        echo "}"
+        return 0
+    fi
+
+    echo "# unsupported package manager"
+    return 1
 }
 
 # --- List ---
@@ -419,6 +535,7 @@ Options:
 Commands:
   list           List packages
   init           Create config file
+  capture        Capture the packages YOU installed
   diff           Show what if you execute sync -u
   add <package>  Add repository package
   sync           Install missing packages

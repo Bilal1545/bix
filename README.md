@@ -94,6 +94,21 @@ package "starship" {
 You already understand it.
 That’s not an accident.
 
+## Bix + Btow
+
+Bix can **optionally integrate with [btow](https://https://github.com/Bilal1545/btow/)** to manage dotfile profiles alongside your packages.
+
+```kdl
+btow {
+    loaded: "deneme"        # optional: profile name to load
+    package "deneme" {
+        url: "https://path.to.btow.file"   # optional: URL for btow import
+    }
+}
+```
+
+This means **bix now manages not only packages but also dotfiles**, allowing you to declaratively sync your entire system and personal setup from a single config file like home-manager.
+
 ---
 
 ## Usage
